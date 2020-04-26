@@ -3,9 +3,10 @@ from .models import Floors, Projects, Blob
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from .serializers import ProjectsSerializer
+from .serializers import ProjectsSerializer, FloorSerializer, BlobSerializer
 import coreapi
 from rest_framework.schemas import AutoSchema
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class ProjectListSchema(AutoSchema):
@@ -18,7 +19,20 @@ class ProjectListSchema(AutoSchema):
 
 
 class FloorsList(APIView):
-    pass
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get(self, request):
+        items = Floors.objects.all()
+        serlaizer = FloorSerializer(items, many=True)
+        return Response(serlaizer.data, status=200)
+
+    def post(self, request):
+        data = request.data
+        serializer = FloorSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
 
 
 class ProjectsList(APIView):
@@ -51,5 +65,8 @@ class ProjectDetail(APIView):
         return Response(status=400)
 
 
-class Blob(APIView):
-    pass
+class BlobDetail(APIView):
+    def get(self, request):
+        items = Blob.objects.all()
+        serializer = BlobSerializer(items, many=True)
+        return Response(serializer.data, status=200)
