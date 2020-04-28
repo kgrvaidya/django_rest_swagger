@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from .serializers import ProjectsSerializer, FloorSerializer, BlobSerializer
 import coreapi
 from rest_framework.schemas import AutoSchema
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, FileUploadParser
 
 
 class ProjectListSchema(AutoSchema):
@@ -19,20 +19,22 @@ class ProjectListSchema(AutoSchema):
 
 
 class FloorsList(APIView):
-    parser_classes = (MultiPartParser, FormParser)
+    # parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request):
         items = Floors.objects.all()
         serlaizer = FloorSerializer(items, many=True)
         return Response(serlaizer.data, status=200)
-
-    def post(self, request):
+        
+    # parser_classes = [JSONParser ]
+    def post(self, request, format=None):
         data = request.data
         serializer = FloorSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+        # return Response(request.data)
 
 
 class ProjectsList(APIView):

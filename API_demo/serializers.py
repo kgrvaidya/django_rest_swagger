@@ -9,23 +9,22 @@ class ProjectsSerializer(serializers.ModelSerializer):
 
 
 class BlobSerializer(serializers.ModelSerializer):
+    data = serializers.FileField()
     class Meta:
         model = Blob
         fields = ['floor_id', 'data']
 
 
 class FloorSerializer(serializers.ModelSerializer):
-    blobs = BlobSerializer(many=True, read_only=True)
+    blobs = BlobSerializer(many=True, required=False)
 
     class Meta:
         model = Floors
-        fields = ['house_id', 'type', 'name', 'blobs']
+        fields = ['id','house_id', 'type', 'name', 'blobs']
 
     def create(self, validated_data):
-        if validated_data.get('blobs'):
-            blob_data = validated_data.pop('blobs') | None
+        blobs = validated_data.pop('blobs') if validated_data.get('blobs') else []
         floor = Floors.objects.create(**validated_data)
-        if blob_data:
-            for blobs in blob_data:
-                Blob.objects.create(floor_id=floor, **blobs)
+        for blob in blobs:
+            Blob.objects.create(**blob, floor_id = floor)
         return floor

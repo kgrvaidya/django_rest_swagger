@@ -73,8 +73,7 @@ class Floors(Meta):
 
 
 class Blob(Meta):
-    floor_id = models.ForeignKey(
-        Floors, related_name='blobs', on_delete=models.CASCADE)
+    floor_id = models.ForeignKey(Floors, related_name='blobs', on_delete=models.CASCADE)
     data = models.FileField(upload_to='files/')
     nm_meta = models.CharField(max_length=2000)
 
